@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Form, Icon, Input, Button, message } from 'antd';
-import axios from 'axios';
+import { Form, Icon, Input, Button } from 'antd';
+import ajax from '../../api/ajax'
 
 import logo from './logo.png';
 import './index.less';
@@ -10,25 +10,16 @@ const Item = Form.Item;
 class Login extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
-    this.props.form.validateFields((error,values) => {
+    this.props.form.validateFields(async (error,values) => {
       if(!error){
         const { username, password } = values;
-        axios.post('/login',{ username, password })
-          .then((res) => {
-            const { data } = res;
-            if (data.status === 0){
-              //成功
-              this.props.history.replace('/')
-            }else {
-              //失败
-              message.error(data.msg, 2);
-              this.props.form.resetFields(['password'])
-            }
-          })
-          .catch(() => {
-            message.error('网络连接错误，请刷新页面',2);
-            this.props.form.resetFields(['password'])
-          })
+        const result = await ajax('/login', { username, password }, 'post');
+        if (result) {
+          this.props.history.replace('/')
+        }else{
+          this.props.form.resetFields(['password']);
+        }
+
       }else {
         console.log('表单校验失败：',error);
       }
