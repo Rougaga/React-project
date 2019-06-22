@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Form, Icon, Input, Button } from 'antd';
-import ajax from '../../api/ajax'
 
 import logo from './logo.png';
 import './index.less';
+import { reqLogin } from "../../api/req-login";
 
 const Item = Form.Item;
 
@@ -13,7 +13,7 @@ class Login extends Component {
     this.props.form.validateFields(async (error,values) => {
       if(!error){
         const { username, password } = values;
-        const result = await ajax('/login', { username, password }, 'post');
+        const result = await reqLogin(username,password);
         if (result) {
           this.props.history.replace('/')
         }else{
