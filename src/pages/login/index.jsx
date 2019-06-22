@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Form, Icon, Input, Button } from 'antd';
+import { Form, Icon, Input, Button, message } from 'antd';
+import axios from 'axios';
 
 import logo from './logo.png';
 import './index.less';
@@ -12,9 +13,24 @@ class Login extends Component {
     this.props.form.validateFields((error,values) => {
       if(!error){
         const { username, password } = values;
-        console.log(username, password);
+        axios.post('/login',{ username, password })
+          .then((res) => {
+            const { data } = res;
+            if (data.status === 0){
+              //成功
+              this.props.history.replace('/')
+            }else {
+              //失败
+              message.error(data.msg, 2);
+              this.props.form.resetFields(['password'])
+            }
+          })
+          .catch(() => {
+            message.error('网络连接错误，请刷新页面',2);
+            this.props.form.resetFields(['password'])
+          })
       }else {
-        console.log(error);
+        console.log('表单校验失败：',error);
       }
     })
   };
