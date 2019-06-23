@@ -1,0 +1,44 @@
+
+  .header-top{
+    text-align: right;
+    padding: 20px;
+    line-height: 23px;
+    border-bottom: 1px solid #1da57a;
+  }
+  .header-bottom{
+    line-height: 37px;
+    &::after{
+      content: '';
+      display:block;
+      clear: both;
+    }
+    .title-name{
+      font-size: 18px;
+      text-align: center;
+      &::after{
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: -15px;
+        -webkit-transform: translateX(-50%);
+        transform: translateX(-50%);
+        border-top: 15px solid #1da57a;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+      }
+    }
+    ul{
+      li{
+        float: right;
+        &.weather-letter{
+          margin-right: 20px;
+        }
+        &.weather-img{
+          width: 30px;
+          margin: 0 10px;
+        }
+        &.time-now{}
+      }
+    }
+  }
+
