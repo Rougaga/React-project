@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Form, Icon, Input, Button } from 'antd';
 
 import logo from '../../assets/images/logo.png';
@@ -7,17 +7,18 @@ import { reqLogin } from "../../api/req-login";
 
 const Item = Form.Item;
 
-class Login extends Component {
-  handleSubmit = (e) => {
+function Login(props) {
+  console.log(props);
+  const handleSubmit = (e) => {
     e.preventDefault();
-    this.props.form.validateFields(async (error,values) => {
+    props.form.validateFields(async (error,values) => {
       if(!error){
         const { username, password } = values;
         const result = await reqLogin(username,password);
         if (result) {
-          this.props.history.replace('/')
+          props.history.replace('/')
         }else{
-          this.props.form.resetFields(['password']);
+          props.form.resetFields(['password']);
         }
 
       }else {
@@ -26,7 +27,7 @@ class Login extends Component {
     })
   };
 
-  validator(rule,value,callback) {
+  const validator = (rule,value,callback) => {
     const name = rule.fullField === 'password'?'密码':'用户名';
     if(value.length < 4){
       callback(`${name}的长度必须大于4位`)
@@ -38,8 +39,8 @@ class Login extends Component {
       callback()
     }
   };
-  render() {
-    const { getFieldDecorator } = this.props.form;
+
+    const { getFieldDecorator } = props.form;
     return <div className="login">
       <header className="header">
         <img src={logo} alt="logo"/>
@@ -47,7 +48,7 @@ class Login extends Component {
       </header>
       <section className="login-page">
         <h2>用户登录</h2>
-        <Form className="form-con" onSubmit={this.handleSubmit}>
+        <Form className="form-con" onSubmit={handleSubmit}>
           <Item>
             {
               getFieldDecorator(
@@ -59,7 +60,7 @@ class Login extends Component {
                     {pattern:/^[a-zA-Z_0-9]+$/, message:'用户名只能包括字母、数字、下划线'}
                  ]}*/
                 {rules : [
-                  {validator : this.validator}
+                  {validator : validator}
                 ]}
               )(
                 <Input
@@ -74,7 +75,7 @@ class Login extends Component {
               getFieldDecorator(
                 'password',
                 {rules : [
-                  {validator : this.validator}
+                  {validator : validator}
                 ]}
               )(
                 <Input
@@ -94,7 +95,7 @@ class Login extends Component {
         </Form>
       </section>
     </div>;
-  }
+
 }
 export default Form.create()(Login);
 

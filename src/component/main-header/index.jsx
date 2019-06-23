@@ -12,7 +12,7 @@ export default class MainHeader extends Component {
     return <div>
       <div className="header-top">
         <span>欢迎,xxx</span>
-        <DefButton />
+        <DefButton>退出</DefButton>
       </div>
       <div className="header-bottom">
         <div className="title-name ant-col-6">首页</div>
