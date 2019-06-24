@@ -1,22 +1,26 @@
 import React from 'react';
 import { Form, Icon, Input, Button } from 'antd';
 
+import { setItem } from "../../utils/storage-tools";
 import logo from '../../assets/images/logo.png';
 import './index.less';
-import { reqLogin } from "../../api/req-login";
+import { reqUser } from "../../api/index";
+
 
 const Item = Form.Item;
 
 function Login(props) {
-  console.log(props);
+  //console.log(props);
   const handleSubmit = (e) => {
     e.preventDefault();
     props.form.validateFields(async (error,values) => {
       if(!error){
         const { username, password } = values;
-        const result = await reqLogin(username,password);
+        const result = await reqUser(username,password);
         if (result) {
-          props.history.replace('/')
+          setItem(result);
+          props.history.replace('/');
+
         }else{
           props.form.resetFields(['password']);
         }
@@ -28,16 +32,22 @@ function Login(props) {
   };
 
   const validator = (rule,value,callback) => {
-    const name = rule.fullField === 'password'?'密码':'用户名';
-    if(value.length < 4){
-      callback(`${name}的长度必须大于4位`)
-    }else if(value.length>11){
-      callback(`${name}的长度必须小于11位`)
-    }else if(!/^[a-zA-Z_0-9]+$/.test(value)){
-      callback(`${name}只能包括字母、数字、下划线`)
-    }else {
-      callback()
+    const name = rule.fullField === 'password'?'密码':'用户名'
+
+    if(value){
+      if(value.length < 4){
+        callback(`${name}的长度必须大于4位`)
+      }else if(value.length>11){
+        callback(`${name}的长度必须小于11位`)
+      }else if(!/^[a-zA-Z_0-9]+$/.test(value)){
+        callback(`${name}只能包括字母、数字、下划线`)
+      }else {
+        callback()
+      }
+    }else{
+      callback('用户名、密码不能为空');
     }
+
   };
 
     const { getFieldDecorator } = props.form;
@@ -80,6 +90,7 @@ function Login(props) {
               )(
                 <Input
                   prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                  type='password'
                   placeholder="请输入密码"
                   className="input-con"
                 />

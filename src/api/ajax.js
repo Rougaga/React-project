@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {message} from "antd";
 
-export default function ajax(url, data, method) {
+export default function ajax(url, data={}, method='get') {
   let reqData = data;
   method = method.toLowerCase();
   if (method === 'get') {

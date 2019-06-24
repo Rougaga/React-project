@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Layout } from 'antd';
 
-import LeftNav from '../../component/life-nav'
-import MainHeader from '../../component/main-header'
+import LeftNav from '../../component/life-nav';
+import MainHeader from '../../component/main-header';
+import { getItem } from '../../utils/storage-tools';
+import { userConfirm } from '../../api/index';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -12,9 +14,19 @@ export default class Main extends Component {
   };
 
   onCollapse = collapsed => {
-    console.log(collapsed);
+    //console.log(collapsed);
     this.setState({ collapsed });
   };
+
+  async componentWillMount(){
+    const user = getItem();
+    const id = user._id;
+    if ( user && id ) {
+      const result = await userConfirm(id);
+      if ( result ) return
+    }
+    this.props.history.replace('/login')
+  }
 
   render() {
     const { collapsed } = this.state;
