@@ -20,6 +20,8 @@ const { Header, Content, Footer, Sider } = Layout;
 export default class Main extends Component {
   state = {
     collapsed: false,
+    isLoading : true,
+    success : false,
   };
 
   onCollapse = collapsed => {
@@ -32,15 +34,23 @@ export default class Main extends Component {
     const id = user._id;
     if ( user && id ) {
       const result = await userConfirm(id);
-      if ( result ) return
+      if ( result ) {
+        return this.setState({
+          isLoading : false,
+          success : true
+        })
+      }
     }
-    this.props.history.replace('/login')
+    this.setState({
+      isLoading: false,
+      success: false
+    })
   }
 
   render() {
-    const { collapsed } = this.state;
-    return (
-      <Layout style={{ minHeight: '100vh' }}>
+    const { collapsed, success, isLoading } = this.state;
+    if (isLoading) return null ;
+    return success ?  <Layout style={{ minHeight: '100vh' }}>
         <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
           <LeftNav collapsed={collapsed}/>
         </Sider>
@@ -63,7 +73,6 @@ export default class Main extends Component {
           </Content>
           <Footer style={{ textAlign: 'center' }}>推荐使用谷歌浏览器，可以获得更佳页面操作体验</Footer>
         </Layout>
-      </Layout>
-    );
+      </Layout> :  <Redirect to='/login'/>;
   }
 }

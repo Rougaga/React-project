@@ -22,17 +22,24 @@ class MainHeader extends Component {
   };
 
   async componentDidMount(){
-    setInterval(() => {
+    this.timeId = setInterval(() => {
       this.setState({
         sysTime : Date.now()
       })
     } ,1000);
-    const result = await weatherMsg();
+    const { promise, cancel } = weatherMsg();
+    this.cancel = cancel;
+    const result = await promise;
     this.setState(result)
   }
 
   componentWillReceiveProps(nextprops){
     this.title = this.getTitle(nextprops)
+  }
+
+  componentWillUnmount(){
+    clearInterval(this.timeId);
+    this.cancel();
   }
 
   getTitle = (nextprops) => {

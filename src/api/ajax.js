@@ -15,7 +15,7 @@ export default function ajax(url, data={}, method='get') {
       const { data } = res;
       if (data.status === 0){
         //成功
-        return data.data
+        return data.data || {}
       }else {
         //失败
         message.error(data.msg, 2);
