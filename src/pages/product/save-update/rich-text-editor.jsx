@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { EditorState, convertToRaw } from 'draft-js';
+import { EditorState, ContentState } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
-import draftToHtml from 'draftjs-to-html';
+import PropTypes from 'prop-types';
 import htmlToDraft from 'html-to-draftjs';
 
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -9,12 +9,22 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 
 
 export default class RichTextEditor extends Component {
-  state = {
-    editorState: EditorState.createEmpty(),
-  };
+  constructor(prop){
+    super(prop);
+    const blocksFromHtml = htmlToDraft(this.props.detail);
+    const { contentBlocks, entityMap } = blocksFromHtml;
+    const contentState = ContentState.createFromBlockArray(contentBlocks, entityMap);
+    const editorState = EditorState.createWithContent(contentState);
+    this.state = {
+      editorState
+    };
+  }
+  static propTypes = {
+    detail : PropTypes.string.isRequired
+  }
+
 
   onEditorStateChange = (editorState) => {
-    console.log(draftToHtml(convertToRaw(editorState.getCurrentContent())))
     this.setState({
       editorState,
     });

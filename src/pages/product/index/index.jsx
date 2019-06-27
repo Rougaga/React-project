@@ -9,21 +9,39 @@ const { Option } = Select;
 
 export default class Index extends Component {
   state = {
-    categories : []
-  }
+    categories : [],
+    loading : true,
+    total : 0
+  };
 
-  async componentDidMount() {
-    const result = await reqProducts(1,3);
-    if(result) {
-      this.setState({
-        categories : result.list
-      })
-    }
-
+  componentDidMount() {
+    this.getProducts(1,3)
   }
 
   showAddProduct = () => {
     this.props.history.push('/product/saveupdate')
+  };
+
+  getProducts = async (pageNum,pageSize) => {
+    const result = await reqProducts(pageNum,pageSize);
+
+    this.setState({
+      loading : true
+    });
+    if (result) {
+      this.setState({
+        categories : result.list,
+        loading : false,
+        total : result.total
+      })
+    }
+
+  };
+
+  showUpdateProduct = (product) => {
+    return () => {
+      this.props.history.push('/product/saveupdate', product)
+    }
   }
 
   render() {
@@ -56,12 +74,12 @@ export default class Index extends Component {
         render: (product) => {
           return <div>
             <DefButton>详情</DefButton>
-            <DefButton>修改</DefButton>
+            <DefButton onClick={this.showUpdateProduct(product)}>修改</DefButton>
           </div>
         }
       }
     ]
-    const products = this.state.categories;
+    const { categories, total, loading } = this.state;
     return <Card
       title={
         <div>
@@ -79,15 +97,19 @@ export default class Index extends Component {
     >
       <Table
         columns={columns}
-        dataSource={products}
+        dataSource={categories}
         bordered
         pagination={{
           showQuickJumper: true,
           showSizeChanger: true,
           pageSizeOptions: ['3', '6', '9', '12'],
-          defaultPageSize: 3
+          defaultPageSize: 3,
+          total,
+          onChange: this.getProducts,
+          //onShowSizeChange: this.getProducts
         }}
         rowKey='_id'
+        loading={loading}
       />
 
     </Card>;

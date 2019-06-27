@@ -1,37 +1,70 @@
 import React, { Component } from 'react';
 import { Card, Button, Icon, Form, Input, Cascader, InputNumber } from 'antd';
+import draftToHtml from "draftjs-to-html";
+import {convertToRaw} from "draft-js";
 
+import RichTextEditor from './rich-text-editor';
 import './index.less';
-import { reqCategoryData } from '../../../api'
-import RichTextEditor from "./rich-text-editer";
+import { reqCategoryData, reqAddProduct } from '../../../api'
 
 const { Item } = Form;
 
 class SaveUpdate extends Component {
+  detailMsgRef = React.createRef();
 
   state = {
     selectList : []
+  };
+
+  getCategory = async (parentId) => {
+    const result = await reqCategoryData(parentId);
+    if(result) {
+      if ( parentId === '0') {
+        this.setState({
+          selectList : result.map((item) => {
+            return {
+              value:item._id,
+              label:item.name,
+              isLeaf:false
+            }
+          })
+        })
+      } else {
+        this.setState({
+          selectList : this.state.selectList.map((category) => {
+            if (parentId === category.value){
+              category.children = result.map((item) => {
+                return {
+                  value:item._id,
+                  label:item.name,
+                }
+              })
+            }
+            return category
+          })
+        })
+      }
+    }
   }
 
-  async componentWillMount() {
-    const result = await reqCategoryData('0');
-    if(result) {
-      this.setState({
-        selectList : result.map((item) => {
-          return {
-            value:item._id,
-            label:item.name,
-            isLeaf:false
-          }
-        })
-      })
+  componentWillMount() {
+    this.getCategory('0');
+
+    const product = this.props.location.state;
+    let id = [];
+    if ( product.pCategoryId !== '0' ) {
+      id.push(product.pCategoryId);
+      this.getCategory(product.pCategoryId)
     }
+    id.push(product.categoryId);
+    this.id = id;
   }
 
   loadData = async (selectedOptions) => {
     //console.log(selectedOptions);
     const selected =selectedOptions[0];
     selected.loading = true;
+    //console.log(selected.value);
     const result = await reqCategoryData(selected.value);
     if(result) {
       //console.log(result);
@@ -53,16 +86,33 @@ class SaveUpdate extends Component {
   }
 
   addCategory = () => {
-    this.props.form.validateFields((err,values) => {
+    this.props.form.validateFields(async (err,values) => {
       if (!err) {
-        console.log(values);
+        const { editorState } = this.detailMsgRef.current.state;
+        const detail = draftToHtml(convertToRaw(editorState.getCurrentContent()));
+        const { name, desc, price, categoriesId} = values;
+        let pCategoryId = '0';
+        let categoryId = '';
+        if(categoriesId.length === 1) {
+          categoryId = categoriesId[0]
+        } else {
+          pCategoryId = categoriesId[0];
+          categoryId = categoriesId[1]
+        }
+        const result = await reqAddProduct({name, desc, price, categoryId, pCategoryId, detail})
+
+        if (result) {
+          this.props.history.push('/product/index')
+        }
       }
     })
   }
 
   render() {
 
-    const { getFieldDecorator } = this.props.form
+    const { getFieldDecorator } = this.props.form;
+    const { selectList } = this.state;
+    const productDetail = this.props.location.state;
 
     const formItemLayout = {
       labelCol: {
@@ -91,7 +141,8 @@ class SaveUpdate extends Component {
               {
                 rules : [
                   {required:true,message:'请输入商品名称'}
-                ]
+                ],
+                initialValue: productDetail ? productDetail.name : ''
               }
             )(
               <Input placeholder='请输入商品名称'/>
@@ -106,7 +157,8 @@ class SaveUpdate extends Component {
               {
                 rules : [
                   {required:true,message:'请输入商品描述'}
-                ]
+                ],
+                initialValue: productDetail ? productDetail.desc : ''
               }
             )(
               <Input placeholder='请输入商品描述'/>
@@ -121,12 +173,13 @@ class SaveUpdate extends Component {
               {
                 rules : [
                   {required:true,message:'请选择商品分类'}
-                ]
+                ],
+                initialValue: this.id
               }
             )(
               <Cascader
                 placeholder='请选择分类'
-                options={this.state.selectList}
+                options={selectList}
                 loadData={this.loadData}
                 changeOnSelect
               />
@@ -141,7 +194,8 @@ class SaveUpdate extends Component {
               {
                 rules : [
                   {required:true,message:'请输入商品价格'}
-                ]
+                ],
+                initialValue: productDetail ? productDetail.price : ''
               }
             )(
               <InputNumber
@@ -153,7 +207,7 @@ class SaveUpdate extends Component {
 
         </Item>
         <Item label='商品详情' wrapperCol={{span: 20}}>
-          <RichTextEditor/>
+          <RichTextEditor ref={this.detailMsgRef} detail={productDetail ? productDetail.detail : ''} />
         </Item>
         <Button onClick={this.addCategory} type='primary' htmltype='submit' className='submit-btn'>提交</Button>
       </Form>
