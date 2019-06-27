@@ -12,6 +12,8 @@ import { reqCategoryData, reqAddCategoryData, reqUpdateCategoryName } from '../.
 export default class Category extends Component {
   state = {
     categoryData : [],
+    subCategoryData : [],
+    isSubCategory : false,
     isAddVisible : false,
     isUpdateVisible : false
   };
@@ -36,26 +38,27 @@ export default class Category extends Component {
   addCategory = () => {
     const { form } = this.getAddCategory.props;
     form.validateFields( async (err, value) => {
+      const {categoryName, parentId} = value;
       if (!err) {
-
-        const {categoryName, parentId} = value;
         const result = await reqAddCategoryData(categoryName, parentId);
+
         if (result) {
-          console.log(result);
           message.success('添加分类成功~', 2);
           form.resetFields(['parentId', 'categoryName']);
 
-          const option = {
+          const options = {
             isAddVisible : false,
           }
 
+          const { isSubCategory } = this.state;
+
           if (result.parentId === '0') {
-
-              option.categoryData = [...this.state.categoryData, result]
-
+            options.categoryData = [...this.state.categoryData, result];
+          } else if ( isSubCategory && result.parentId === this.selectCategory._id ){
+            options.subCategoryData = [...this.state.subCategoryData, result]
           }
 
-          this.setState({option})
+          this.setState(options)
         }
       }
     })
@@ -75,7 +78,15 @@ export default class Category extends Component {
         const categoryId = this.selectCategory._id;
         const result = await reqUpdateCategoryName(categoryId, categoryName);
         if (result) {
-          const categoryData = this.state.categoryData.map((item) => {
+          const { parentId } = this.selectCategory;
+          let categoryState = this.state.categoryData;
+          let stateName = 'categoryData'
+          if (parentId !== '0') {
+            categoryState = this.state.subCategoryData;
+            stateName = 'subCategoryData'
+
+          }
+          const categoryData = categoryState.map((item) => {
             let { _id, name, parentId } = item;
             if( _id === categoryId ) {
               name = categoryName;
@@ -84,18 +95,17 @@ export default class Category extends Component {
                 name,
                 parentId
               }
-            }else{
+            } else {
               return item;
             }
-
           });
-          console.log(categoryData);
+
           form.resetFields(['categoryName']);
           message.success('更新名称成功',2);
-
+          //console.log(categoryData);
           this.setState({
             isUpdateVisible : false,
-            categoryData
+            [stateName]: categoryData
           })
         }
       }
@@ -105,7 +115,6 @@ export default class Category extends Component {
   updateCategoryForm = (selectCategory) => {
     return () => {
       this.selectCategory = selectCategory;
-      //console.log(this.selectCategory.name);
       this.setState({
         isUpdateVisible : true
       })
@@ -120,9 +129,36 @@ export default class Category extends Component {
     })
   }
 
+  checkSubCategory = (selectCategory) => {
+    return async () => {
+      const { _id } = selectCategory;
+      this.selectCategory = selectCategory;
+      const result = await reqCategoryData(_id);
+      if (result) {
+        this.setState({
+          subCategoryData : result
+        })
+      }
+      this.setState({
+        isSubCategory : true,
+      })
+    }
+  };
+
+  goBack = () => {
+    this.setState({
+      isSubCategory : false
+
+    })
+  }
+
   render() {
 
-    const { categoryData, isAddVisible, isUpdateVisible } = this.state;
+    const { categoryData,
+      isAddVisible,
+      isUpdateVisible,
+      subCategoryData,
+      isSubCategory} = this.state;
 
     const columns = [
       {
@@ -135,10 +171,11 @@ export default class Category extends Component {
         //dataIndex: 'operation',
         className: 'left-operation',
         render: (selectCategory) => {
-
           return <div>
             <DefButton onClick={this.updateCategoryForm(selectCategory)}>修改名称</DefButton>
-            <DefButton>查看子品类</DefButton>
+            {
+              isSubCategory ? null : <DefButton onClick={this.checkSubCategory(selectCategory)}>查看子品类</DefButton>
+            }
           </div>
 
         },
@@ -165,11 +202,12 @@ export default class Category extends Component {
         name: '耳机',
       },
     ];*/
-
-    return <Card title="一级分类列表" extra={<Button type="primary" onClick={this.addCategoryForm}><Icon type="plus" />添加品类</Button>}>
+    //console.log(this.selectCategory);
+    return <Card title={isSubCategory? <div><DefButton onClick={this.goBack}>一级分类</DefButton><Icon type={'arrow-right'}/>&nbsp;{this.selectCategory.name}</div> : "一级分类列表"}
+                 extra={<Button type="primary" onClick={this.addCategoryForm}><Icon type="plus" />添加品类</Button>}>
       <Table
         columns={columns}
-        dataSource={categoryData}
+        dataSource={isSubCategory ? subCategoryData : categoryData}
         bordered
         pagination={{
           showSizeChanger:true,

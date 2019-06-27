@@ -43,7 +43,11 @@ class MainHeader extends Component {
   }
 
   getTitle = (nextprops) => {
-    const { pathname } = nextprops.location;
+    let { pathname } = nextprops.location;
+    const pathnameReg = /^\/product\//;
+    if(pathnameReg.test(pathname)){
+      pathname = pathname.slice(0,8)
+    }
     for (let i = 0; i < menuList.length; i++) {
       const item = menuList[i]
       if (item.children) {

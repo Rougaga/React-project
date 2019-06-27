@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Layout } from 'antd';
 import { Route, Switch, Redirect } from 'react-router-dom'
 
-import LeftNav from '../../component/life-nav';
+import LeftNav from '../../component/left-nav';
 import MainHeader from '../../component/main-header';
 import { getItem } from '../../utils/storage-tools';
 import { userConfirm } from '../../api/index';
