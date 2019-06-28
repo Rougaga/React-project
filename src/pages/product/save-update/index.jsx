@@ -47,17 +47,20 @@ class SaveUpdate extends Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.getCategory('0');
 
     const product = this.props.location.state;
     let id = [];
-    if ( product.pCategoryId !== '0' ) {
-      id.push(product.pCategoryId);
-      this.getCategory(product.pCategoryId)
+    if(product){
+      if ( product.pCategoryId !== '0' ) {
+        id.push(product.pCategoryId);
+        this.getCategory(product.pCategoryId)
+      }
+      id.push(product.categoryId);
+      this.id = id;
     }
-    id.push(product.categoryId);
-    this.id = id;
+
   }
 
   loadData = async (selectedOptions) => {

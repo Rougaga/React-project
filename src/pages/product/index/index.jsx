@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Card, Button, Icon, Table, Select, Input } from 'antd';
+import { Card, Button, Icon, Table, Select, Input, message } from 'antd';
 
 import './index.less';
 import DefButton from '../../../component/defined-button';
-import { reqProducts } from '../../../api'
+import { reqProducts, reqSearchProduct } from '../../../api'
 
 const { Option } = Select;
 
@@ -11,7 +11,11 @@ export default class Index extends Component {
   state = {
     categories : [],
     loading : true,
-    total : 0
+    total : 0,
+    searchType : 'searchName',
+    searchContent : '',
+    pageNum : 1,
+    pageSize : 3
   };
 
   componentDidMount() {
@@ -23,11 +27,24 @@ export default class Index extends Component {
   };
 
   getProducts = async (pageNum,pageSize) => {
-    const result = await reqProducts(pageNum,pageSize);
 
     this.setState({
       loading : true
     });
+
+    const {searchType, searchContent,} = this.state;
+    let promise = null;
+    if (this.isSearch && searchContent) {
+      promise = reqSearchProduct({
+        searchType, searchContent, pageSize, pageNum
+      });
+    } else {
+      promise = reqProducts(pageNum, pageSize);
+    }
+
+    const result = await promise;
+    console.log(result);
+
     if (result) {
       this.setState({
         categories : result.list,
@@ -41,6 +58,31 @@ export default class Index extends Component {
   showUpdateProduct = (product) => {
     return () => {
       this.props.history.push('/product/saveupdate', product)
+    }
+  }
+
+  handleChange = (stateName) => {
+    return (e) => {
+      let value = '';
+      if (stateName === 'searchType') {
+        value = e;
+      } else {
+
+        value = e.target.value;
+        if (!value) this.isSearch = false;
+      }
+      this.setState({[stateName]: value})
+
+    }
+  };
+
+  searth = async ()  => {
+    const { searchContent, pageSize, pageNum } = this.state;
+    if (searchContent) {
+      this.isSearch = true;
+      this.getProducts(pageNum, pageSize);
+    } else {
+      message.warn('请输入搜索内容~', 2);
     }
   }
 
@@ -83,12 +125,12 @@ export default class Index extends Component {
     return <Card
       title={
         <div>
-          <Select defaultValue={0}>
+          <Select defaultValue={0} onChange={this.handleChange('searchType')}>
             <Option value={0} key={0}>根据商品名称</Option>
             <Option value={1} key={1}>根据商品描述</Option>
           </Select>
-          <Input className='search-input' placeholder='关键字'/>
-          <Button type='primary'>搜索</Button>
+          <Input onChange={this.handleChange('searchContent')} className='search-input' placeholder='关键字'/>
+          <Button type='primary' onClick={this.searth}>搜索</Button>
         </div>
       }
       extra={

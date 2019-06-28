@@ -6,7 +6,7 @@ import { message } from 'antd';
 export const reqUser = (username, password) => ajax('/login',{username,password},'post');
 
 //用户验证
-export const userConfirm = (id) => ajax('/main/confirm',{id},'post');
+export const userConfirm = (id) => ajax('/validate/user',{id},'post');
 
 //请求天气
 export const weatherMsg = function() {
@@ -45,3 +45,21 @@ export const reqProducts = (pageNum, pageSize) => ajax('/manage/product/list', {
 
 //增加商品
 export const reqAddProduct = ({name, desc, price, pCategoryId, categoryId, detail}) => ajax('/manage/product/add', {name, desc, price, pCategoryId, categoryId, detail}, 'post')
+
+//搜索商品
+export const reqSearchProduct = ({searchType, searchContent, pageNum, pageSize}) => ajax('/manage/product/search', {[searchType]: searchContent, pageSize, pageNum});
+
+//请求角色列表
+export const reqRoleList = () => ajax('/manage/role/list')
+
+//添加角色
+export const addRole = ( name ) => ajax('/manage/role/add', { name }, 'post')
+
+//更新角色权限
+export const updateRole = ( _id, auth_name, menus ) => ajax('/manage/role/update', { _id, auth_name, menus }, 'post')
+
+//获取用户列表
+export const reqUserList = () => ajax('/manage/user/list');
+
+//请求添加用户
+export const reqAddUser = ({username, password, phone, email, role_id}) => ajax('/manage/user/add',{username, password, phone, email, role_id}, 'post')

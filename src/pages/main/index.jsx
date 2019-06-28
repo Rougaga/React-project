@@ -32,6 +32,7 @@ export default class Main extends Component {
   async componentWillMount(){
     const user = getItem();
     const id = user._id;
+
     if ( user && id ) {
       const result = await userConfirm(id);
       if ( result ) {
@@ -39,6 +40,8 @@ export default class Main extends Component {
           isLoading : false,
           success : true
         })
+      }else{
+        console.log('123');
       }
     }
     this.setState({
