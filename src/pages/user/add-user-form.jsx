@@ -30,7 +30,7 @@ class AddUserForm extends Component {
 
   render () {
     const {getFieldDecorator} = this.props.form;
-    const { roles } = this.props
+    const { roles } = this.props;
     return (
       <Form>
         <Item label='用户名' labelCol={{span: 6}}  wrapperCol={{span: 15}}>

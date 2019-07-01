@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Layout } from 'antd';
 import { Route, Switch, Redirect } from 'react-router-dom'
 
@@ -21,7 +21,7 @@ export default class Main extends Component {
   state = {
     collapsed: false,
     isLoading : true,
-    success : false,
+    success : [],
   };
 
   onCollapse = collapsed => {
@@ -36,22 +36,21 @@ export default class Main extends Component {
     if ( user && id ) {
       const result = await userConfirm(id);
       if ( result ) {
+        let menus = user.role.menus;
         return this.setState({
           isLoading : false,
-          success : true
+          success : menus.reverse()
         })
-      }else{
-        console.log('123');
       }
+
     }
     this.setState({
       isLoading: false,
-      success: false
     })
   }
 
   render() {
-    const { collapsed, success, isLoading } = this.state;
+    const { collapsed, success, isLoading, } = this.state;
     if (isLoading) return null ;
     return success ?  <Layout style={{ minHeight: '100vh' }}>
         <Sider collapsible collapsed={collapsed} onCollapse={this.onCollapse}>
@@ -63,15 +62,30 @@ export default class Main extends Component {
           </Header>
           <Content style={{ margin: '18px 16px' }}>
             <Switch>
-              <Route path='/home' component={Home}/>
-              <Route path='/category' component={Category}/>
-              <Route path='/product' component={Product}/>
-              <Route path='/user' component={User}/>
-              <Route path='/role' component={Role}/>
-              <Route path='/charts/bar' component={Bar}/>
-              <Route path='/charts/line' component={Line}/>
-              <Route path='/charts/pie' component={Pie}/>
-              <Redirect to="/home" />
+              {
+                success.map((item) => {
+                  switch (item) {
+                    case '/category':
+                      return <Route path='/category' component={Category}/>;
+                    case '/product':
+                      return <Route path='/product' component={Product}/>;
+                    case '/user':
+                      return <Route path='/user' component={User}/>;
+                    case '/role':
+                      return <Route path='/role' component={Role}/>;
+                    case '/charts/bar':
+                      return <Route path='/charts/bar' component={Bar}/>;
+                    case '/charts/line':
+                      return <Route path='/charts/line' component={Line}/>;
+                    case '/charts/pie':
+                      return <Route path='/charts/pie' component={Pie}/>;
+                    case '/home':
+                      return <Fragment><Route path='/home' component={Home}/><Redirect to="/home" /></Fragment>
+                    default:
+                      return null
+                  }
+                })
+              }
             </Switch>
           </Content>
           <Footer style={{ textAlign: 'center' }}>推荐使用谷歌浏览器，可以获得更佳页面操作体验</Footer>

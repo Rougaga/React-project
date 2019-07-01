@@ -6,6 +6,7 @@ import { Link, withRouter } from 'react-router-dom'
 import menuList from '../../config/menu-config'
 import './index.less'
 import logo from '../../assets/images/logo.png'
+import { getItem } from "../../utils/storage-tools";
 
 const { SubMenu, Item } = Menu;
 
@@ -22,15 +23,61 @@ class LeftNav extends Component {
       </Link>
     </Item>
   }
+
+
   componentWillMount(){
     let { pathname } = this.props.location;
+    const { role : { menus } } = getItem();
+    //console.log(getItem());
 
     const pathnameReg = /^\/product\//;
 
     if (pathnameReg.test(pathname)) {
       pathname = pathname.slice(0, 8);
     }
-    this.selectNav = pathname;
+
+    this.menus = menuList.reduce((prev,curr) => {
+      const children = curr.children;
+      //console.log(menuList);
+      if(children){
+        let isSubMenuShow = false;
+        const subMenu = <SubMenu
+          key={curr.key}
+          title={
+            <span>
+              <Icon type={curr.icon} />
+              <span>{curr.title}</span>
+            </span>
+          }
+        >{
+          children.reduce((prev,current) => {
+            const menu = menus.find((item) => item === current.key);
+            if(menu){
+              if (pathname === curr.key) {
+                this.openNav = curr.key;
+              }
+              isSubMenuShow = true;
+              return [...prev, this.createMenu(current)]
+            }else{
+              return prev;
+            }
+
+          },[])
+        }
+        </SubMenu>
+
+        return isSubMenuShow ? [...prev, subMenu] : prev;
+      } else {
+        const menu = menus.find((menu) => menu === curr.key);
+
+        if(menu){
+          return [...prev, this.createMenu(curr)]
+        }else{
+          return prev
+        }
+      }
+    },[])
+    /*this.selectNav = pathname;
     this.menus = menuList.map((menu) => {
       const { children } = menu;
       if (!children) {
@@ -55,7 +102,7 @@ class LeftNav extends Component {
           }
         </SubMenu>
       }
-    })
+    })*/
 
   }
 

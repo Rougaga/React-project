@@ -12,7 +12,7 @@ export default class Index extends Component {
     categories : [],
     loading : true,
     total : 0,
-    searchType : 'searchName',
+    searchType : "productName",
     searchContent : '',
     pageNum : 1,
     pageSize : 3
@@ -43,7 +43,6 @@ export default class Index extends Component {
     }
 
     const result = await promise;
-    console.log(result);
 
     if (result) {
       this.setState({
@@ -125,9 +124,9 @@ export default class Index extends Component {
     return <Card
       title={
         <div>
-          <Select defaultValue={0} onChange={this.handleChange('searchType')}>
-            <Option value={0} key={0}>根据商品名称</Option>
-            <Option value={1} key={1}>根据商品描述</Option>
+          <Select defaultValue="productName" onChange={this.handleChange('searchType')}>
+            <Option value="productName" key={0}>根据商品名称</Option>
+            <Option value="productDesc" key={1}>根据商品描述</Option>
           </Select>
           <Input onChange={this.handleChange('searchContent')} className='search-input' placeholder='关键字'/>
           <Button type='primary' onClick={this.searth}>搜索</Button>
@@ -148,7 +147,7 @@ export default class Index extends Component {
           defaultPageSize: 3,
           total,
           onChange: this.getProducts,
-          //onShowSizeChange: this.getProducts
+          onShowSizeChange: this.getProducts
         }}
         rowKey='_id'
         loading={loading}

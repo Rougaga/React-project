@@ -6,6 +6,7 @@ import {convertToRaw} from "draft-js";
 import RichTextEditor from './rich-text-editor';
 import './index.less';
 import { reqCategoryData, reqAddProduct } from '../../../api'
+import PictureWall from './picture-wall'
 
 const { Item } = Form;
 
@@ -209,6 +210,11 @@ class SaveUpdate extends Component {
           }
 
         </Item>
+        {
+          productDetail?<Item label='商品照片' >
+            <PictureWall />
+          </Item> : null
+        }
         <Item label='商品详情' wrapperCol={{span: 20}}>
           <RichTextEditor ref={this.detailMsgRef} detail={productDetail ? productDetail.detail : ''} />
         </Item>

@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import AddUserForm from './add-user-form';
 import UpdateUserForm from './update-user-form';
 import MyButton from '../../component/defined-button';
-import { reqUserList, reqAddUser } from '../../api'
+import { reqUserList, reqAddUser, reqDeleteUser } from '../../api'
 
 export default class Role extends Component {
   state = {
@@ -27,14 +27,11 @@ export default class Role extends Component {
   addUser = () => {
     const { form  } = this.addUserForm.props;
     form.validateFields(async (err,values) => {
-      //{name: "aaaaa", password: "aaaaaa", phone: "1213232", email: "13431412", role: "1"}
       if(!err) {
-
         const result = await reqAddUser(values);
         if (result) {
           message.success('添加用户成功', 2);
           form.resetFields();
-          console.log(this.state.users);
           this.setState({
             users : [...this.state.users,result],
             isShowAddUserModal : false
@@ -54,13 +51,37 @@ export default class Role extends Component {
     return () => this.setState({[stateName]: stateValue})
   };
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.getUserList();
+  }
+
+  getUserList = async () => {
     const result = await reqUserList();
     if (result) {
       this.setState({
         users : result.users,
         roles : result.roles
       })
+      message.success('获取用户成功', 2)
+    }else {
+      message.error('获取用户失败', 2)
+    }
+  }
+
+  deleteUser = (user) => {
+    return async () => {
+      const userId = user._id;
+      const result = await reqDeleteUser({userId});
+      if (result) {
+        message.success('删除用户成功', 2);
+        this.setState({
+          users : this.state.users.filter((item) => {
+            return item._id !== userId
+          })
+        })
+      }else{
+        message.error('删除用户失败',2)
+      }
     }
   }
   
@@ -98,7 +119,7 @@ export default class Role extends Component {
         render: user => {
           return <div>
             <MyButton name='修改' onClick={() => {}}>修改</MyButton>
-            <MyButton name='删除' onClick={() => {}}>删除</MyButton>
+            <MyButton name='删除' onClick={this.deleteUser(user)}>删除</MyButton>
           </div>
         }
       }

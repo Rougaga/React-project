@@ -11,6 +11,8 @@
     "draft-js-linkify-plugin": "^2.0.1",
     "draft-js-plugins-editor": "^2.1.1",
     "draftjs-to-html": "^0.8.4",
+    "echarts": "^4.2.1",
+    "echarts-for-react": "^2.0.15-beta.0",
     "html-to-draftjs": "^1.4.0",
     "jsonp": "^0.2.1",
     "react": "^16.8.6",

@@ -5,7 +5,7 @@ import { Modal } from 'antd';
 
 
 import './index.less'
-import { weatherMsg } from "../../api";
+//import { weatherMsg } from "../../api";
 import { getItem, removeItem } from "../../utils/storage-tools";
 import DefButton from '../defined-button';
 import menuList from '../../config/menu-config'
@@ -21,7 +21,7 @@ class MainHeader extends Component {
     this.title = this.getTitle(this.props)
   };
 
-  async componentDidMount(){
+  /*async componentDidMount(){
     this.timeId = setInterval(() => {
       this.setState({
         sysTime : Date.now()
@@ -31,7 +31,7 @@ class MainHeader extends Component {
     this.cancel = cancel;
     const result = await promise;
     this.setState(result)
-  }
+  }*/
 
   componentWillReceiveProps(nextprops){
     this.title = this.getTitle(nextprops)
@@ -39,7 +39,7 @@ class MainHeader extends Component {
 
   componentWillUnmount(){
     clearInterval(this.timeId);
-    this.cancel();
+    //this.cancel();
   }
 
   getTitle = (nextprops) => {
